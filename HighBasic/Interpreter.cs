@@ -58,19 +58,6 @@ public class Interpreter
 
     public void InterpretStatements(IEnumerable<Statement> statements)
     {
-        // debug print
-        // TODO: make this prettier and move it somewhere else
-        foreach (var statement in statements)
-        {
-            Console.WriteLine($"{statement.Source}: {statement.Type}");
-            foreach (var expression in statement.Expressions)
-            {
-                Console.WriteLine($"|  {expression.Source}: {expression.Type} ({expression.Value})");
-            }
-        }
-
-        Console.WriteLine();
-
         foreach (var statement in statements)
         {
             switch (statement.Type)

@@ -8,6 +8,8 @@ public class Runtime(Interpreter? interpreter = null)
 {
     public Interpreter Interpreter { get; } = interpreter ?? new Interpreter();
 
+    public bool Debug { get; set; } = false;
+
     public Runtime InsertStandardLibrary()
     {
         Interpreter.variables["noop"] = new NativeHBFunction()
@@ -46,6 +48,21 @@ public class Runtime(Interpreter? interpreter = null)
 
     public void DoString(string code)
     {
-        Interpreter.InterpretStatements(Lexer.ParseString(code));
+        var statements = Lexer.ParseString(code);
+
+        if (Debug)
+        {
+            foreach (var statement in statements)
+            {
+                Console.WriteLine($"{statement.Source}: {statement.Type}");
+                foreach (var expression in statement.Expressions)
+                {
+                    Console.WriteLine($"|  {expression.Source}: {expression.Type} ({expression.Value})");
+                }
+            }
+            Console.WriteLine();
+        }
+
+        Interpreter.InterpretStatements(statements);
     }
 }

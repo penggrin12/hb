@@ -1,28 +1,35 @@
-﻿namespace HighBasic;
+﻿using System;
+using System.IO;
+using CommandLine;
+
+namespace HighBasic;
 
 public static class Program
 {
-    static void Main()
+    public class Options
     {
-        const string source = """
-: this is a comment
-noop : comments can also be inline
+        [Option("debug", Required = false, Default = false, HelpText = "Enable debug mode")]
+        public bool Debug { get; set; }
 
-var message "hello there ms biscuits 🩷 (this is a string literal assigned to a variable)"
-println $message : reading a variable value (by prefixing with $)
+        [Value(0, Required = true, MetaName = "INPUT", HelpText = "The code file to run")]
+        public string InputFile { get; set; } = string.Empty;
+    }
 
-println "this is a string literal (not using a variable)"
+    static void Main(string[] args)
+    {
+        Parser.Default.ParseArguments<Options>(args)
+            .WithParsed(o =>
+            {
+                using FileStream inputFile = File.Open(o.InputFile, FileMode.Open);
+                using StreamReader reader = new(inputFile);
 
-print "this is also a string literal but without a"
-println " new line"
+                Runtime runtime = new Runtime()
+                    .InsertStandardLibrary();
 
-vars cool_vars:this is a comment too
-println $cool_vars
-""";
+                if (o.Debug)
+                    runtime.Debug = true;
 
-        Runtime runtime = new Runtime()
-            .InsertStandardLibrary();
-
-        runtime.DoString(source);
+                runtime.DoString(reader.ReadToEnd());
+            });
     }
 }
